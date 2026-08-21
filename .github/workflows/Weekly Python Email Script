@@ -1,0 +1,27 @@
+name: Weekly Python Script
+
+on:
+  schedule:
+    - cron: '0 23 * * 0,4'   # Sunday & Thursday 23:00 UTC = Monday & Friday 7:00 AM Taiwan time
+  workflow_dispatch:        # Lets you also trigger it manually from the Actions tab
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+       - name: Run script
+        run: python script.py
+        env:
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
