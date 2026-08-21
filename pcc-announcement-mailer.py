@@ -1127,36 +1127,27 @@ with open(filename, "w", encoding="utf-8") as f:
 # 2. 觸發瀏覽器下載
 files.download(filename)
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
 import os
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 sender_email = os.environ.get("EMAIL_ADDRESS")
 sender_password = os.environ.get("EMAIL_PASSWORD")
-
-server = smtplib.SMTP('smtp.gmail.com', 587)
-server.starttls()
-server.login(sender_email, sender_password)
-
-
+receiver_email = "receiver@example.com"
 
 message = MIMEMultipart("alternative")
 message["Subject"] = "採購資料查詢結果"
-message["From"] = sender
-message["To"] = receiver
+message["From"] = sender_email
+message["To"] = receiver_email
+message.attach(MIMEText(full_email_html, "html"))
 
-
-# 3. 附加 HTML 內容
-part = MIMEText(full_email_html, "html")
-message.attach(part)
-
-# 4. 發送郵件 (以 Gmail SMTP 為例)
 try:
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(sender, password)
-        server.sendmail(sender, receiver, message.as_string())
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(sender_email, sender_password)
+    server.sendmail(sender_email, receiver_email, message.as_string())
+    server.quit()
     print("信件已成功寄出！")
 except Exception as e:
     print(f"寄信失敗: {e}")
